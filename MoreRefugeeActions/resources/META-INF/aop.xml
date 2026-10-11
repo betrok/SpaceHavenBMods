@@ -1,0 +1,9 @@
+<aspectj>
+    <aspects>
+        <aspect name="spacehavenbmods.MoreRefugeeActions.ReachedEdenPopupAspect" />
+    </aspects>
+
+    <weaver options="-verbose -showWeaveInfo">
+        <include within="fi.bugbyte..*" />
+    </weaver>
+</aspectj>

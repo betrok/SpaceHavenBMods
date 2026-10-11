@@ -1,0 +1,144 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>spacehavenbmods</groupId>
+    <artifactId>MoreRefugeeActions</artifactId>
+    <version>${revision}</version>
+
+    <properties>
+        <!-- author and description will be copied to generated info.xml (see below) -->
+        <author>betrok</author>
+        <description><![CDATA[This mod adds addition refugee-related interactions.]]></description>
+        <!-- default version, pass -Drevison=<version> to mvn to overwrite -->
+        <revision>git</revision>
+        
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <aspectjweaver.version>1.9.19</aspectjweaver.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.9.19</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fi.bugbyte</groupId>
+            <artifactId>spacehaven</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.19</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        
+        <resources>
+            <resource>
+                <directory>resources</directory>
+            </resource>
+        </resources>
+        
+        <plugins>
+            <plugin>
+                <groupId>dev.aspectj</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.13.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjtools</artifactId>
+                        <version>1.9.19</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <forceAjcCompile>true</forceAjcCompile>
+                    <showWeaveInfo>true</showWeaveInfo>
+                    <verbose>true</verbose>
+                    <Xlint>ignore</Xlint>
+                    <encoding>UTF-8 </encoding>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <complianceLevel>1.8</complianceLevel>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <release>8</release>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/${project.artifactId}</outputDirectory>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <argLine>-XX:-UseSplitVerifier</argLine>
+                    <argLine>
+                        -javaagent:${user.home}/.m2/repository/org/aspectj/aspectjweaver/${aspectjweaver.version}/aspectjweaver-${aspectjweaver.version}.jar</argLine>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <echoxml file="${project.build.directory}/${project.artifactId}/info.xml">
+                                    <mod>
+                                        <name>${project.artifactId}</name>
+                                        <author>${author}</author>
+                                        <description>${description}</description>
+                                        <minimumLoaderVersion>0.12.0</minimumLoaderVersion>
+                                        <gameVersions>
+                                            <v>1.0.0</v>
+                                        </gameVersions>
+                                        <version>${project.version}</version>
+                                    </mod>
+                                </echoxml>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
