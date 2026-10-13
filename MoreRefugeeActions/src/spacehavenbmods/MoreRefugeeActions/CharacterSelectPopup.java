@@ -1,42 +1,50 @@
 package spacehavenbmods.MoreRefugeeActions;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
-import fi.bugbyte.framework.Game;
-import fi.bugbyte.framework.graphics.Renderer2D;
-import fi.bugbyte.framework.screen.StageButton;
-import fi.bugbyte.gen.compiled.GuiSkins3;
-import fi.bugbyte.gen.compiled.CheckBoxes1;
-import fi.bugbyte.gen.compiled.TextIconButton1;
-import fi.bugbyte.gen.compiled.TextButtons2;
-import fi.bugbyte.framework.input.GameInput;
+import com.badlogic.gdx.utils.Array;
 import fi.bugbyte.framework.Settings;
-import fi.bugbyte.framework.screen.ScrollList;
-import fi.bugbyte.framework.screen.ListItem;
+import fi.bugbyte.framework.graphics.Renderer2D;
+import fi.bugbyte.framework.input.GameInput;
 import fi.bugbyte.framework.screen.GuiSkin;
+import fi.bugbyte.framework.screen.ListItem;
+import fi.bugbyte.framework.screen.ScrollList;
+import fi.bugbyte.framework.screen.StageButton;
+import fi.bugbyte.gen.compiled.CheckBoxes1;
+import fi.bugbyte.gen.compiled.GuiSkins3;
+import fi.bugbyte.gen.compiled.TextButtons2;
+import fi.bugbyte.gen.compiled.TextIconButton1;
+import fi.bugbyte.spacehaven.gui.EntityAndCraftInfo;
 import fi.bugbyte.spacehaven.gui.GUI;
 import fi.bugbyte.spacehaven.gui.Notes;
-import fi.bugbyte.spacehaven.gui.EntityAndCraftInfo;
 import fi.bugbyte.spacehaven.gui.popups.DialogBoxScreen;
-import fi.bugbyte.spacehaven.stuff.Entity;
 import fi.bugbyte.spacehaven.stuff.Character;
+import fi.bugbyte.spacehaven.stuff.Entity;
 
 public class CharacterSelectPopup extends DialogBoxScreen implements EntityAndCraftInfo.CrewSelectCallback {
 	static final float popupHeight = 400;
 	static final float popupWidht = 500;
 	final Array<Character> characters;
 	ScrollList scroll;
-	CharacterArrayCallback callback;
+	OnClose onClose;
+	CustomizeCard customizeCard;
 
-	public interface CharacterArrayCallback {
-		void callback(Array<Character> selected);
+	// called on dialog close
+	public interface OnClose {
+		void callback(boolean confirmed, Array<Character> selected);
 	}
 
-	public CharacterSelectPopup(final String title, final Array<Character> characters, CharacterArrayCallback cb) {
+	// called on creation of each item in list
+	public interface CustomizeCard {
+		void callback(EntityAndCraftInfo.CrewSelectItem card);
+	}
+
+	// customizeCard can be null
+	public CharacterSelectPopup(final String title, final Array<Character> characters, OnClose onClose,
+			CustomizeCard customizeCard) {
 		super(title);
 		this.characters = characters;
-		this.callback = cb;
+		this.onClose = onClose;
+		this.customizeCard = customizeCard;
 		// needed for doOnClose to be called
 		onCloseDo = Notes.ObjectivePopupType.None;
 	}
@@ -75,7 +83,9 @@ public class CharacterSelectPopup extends DialogBoxScreen implements EntityAndCr
 			l.setCheckBoxOff(190.0f * Settings.uiScale, 0.0f);
 			l.setExtraIconOff(150 * Settings.uiScale, 0);
 			l.setCheckBoxValue(false, this, CheckBoxes1.getAllowCheckBox());
-			l.setExtraIcon(Game.library.getAnimation("moodSmallIcon"));
+			if (customizeCard != null) {
+				customizeCard.callback(l);
+			}
 			scroll.addItem(l);
 		}
 
@@ -108,13 +118,13 @@ public class CharacterSelectPopup extends DialogBoxScreen implements EntityAndCr
 		buttonManager.addButton(selectAll);
 		buttonManager.addButton(selectNone);
 
-		// selectAll/selectNone burronts on left side
+		// selectAll/selectNone buttonts on left side
 		float bx = skin.box.getPosX() - skin.box.getWidth() / 2;
 		float by = yes.getY();
 		final float spacingX = 4.0f * Settings.uiScale;
-		bx += 2 * spacingX + selectAll.getWidth() / 2;
+		bx += 2 * spacingX + selectAll.get9PWidth() / 2;
 		selectAll.moveTo(bx, by);
-		bx += selectAll.getWidth() / 2 + spacingX + selectNone.getWidth() / 2;
+		bx += selectAll.get9PWidth() / 2 + spacingX + selectNone.get9PWidth() / 2;
 		selectNone.moveTo(bx, by);
 
 		// default accept/close buttons on right side
@@ -183,9 +193,6 @@ public class CharacterSelectPopup extends DialogBoxScreen implements EntityAndCr
 
 	@Override
 	protected void doOnClose() {
-		if (!lastAnswer) {
-			return;
-		}
 		Array<Character> selected = new Array<Character>(false, scroll.getSize());
 		for (final ListItem i : scroll.getCurrentItems()) {
 			EntityAndCraftInfo.CrewSelectItem c = (EntityAndCraftInfo.CrewSelectItem) i;
@@ -193,7 +200,8 @@ public class CharacterSelectPopup extends DialogBoxScreen implements EntityAndCr
 				selected.add(c.getCharacter());
 			}
 		}
-		callback.callback(selected);
+
+		onClose.callback(lastAnswer, selected);
 	}
 
 	@Override

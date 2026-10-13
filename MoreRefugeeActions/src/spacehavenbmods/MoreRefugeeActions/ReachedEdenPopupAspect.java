@@ -1,27 +1,24 @@
 package spacehavenbmods.MoreRefugeeActions;
 
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.JoinPoint;
+import com.badlogic.gdx.utils.Array;
+import fi.bugbyte.framework.Game;
+import fi.bugbyte.framework.screen.StageButton;
+import fi.bugbyte.gen.compiled.TextIconButton1;
+import fi.bugbyte.gen.compiled.TextButtons2;
+import fi.bugbyte.spacehaven.gui.GameLog;
+import fi.bugbyte.spacehaven.gui.StarMapScreen;
+import fi.bugbyte.spacehaven.gui.popups.ReachedEdenPopup;
+import fi.bugbyte.spacehaven.stuff.Character;
+import fi.bugbyte.spacehaven.stuff.Entity;
+import fi.bugbyte.spacehaven.stuff.personality.AbsWorkPersonality;
+import fi.bugbyte.spacehaven.world.Ship;
+import fi.bugbyte.spacehaven.world.World;
+import java.lang.System;
+import java.lang.reflect.Field;
 import org.aspectj.lang.annotation.After;
-import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-
-import java.lang.reflect.Field;
-import java.lang.System;
-import java.util.Comparator;
-
-import com.badlogic.gdx.utils.Array;
-
-import fi.bugbyte.spacehaven.gui.popups.ReachedEdenPopup;
-import fi.bugbyte.spacehaven.gui.popups.DialogBoxScreen;
-import fi.bugbyte.spacehaven.gui.StarMapScreen;
-import fi.bugbyte.spacehaven.gui.GameLog;
-import fi.bugbyte.spacehaven.stuff.Character;
-import fi.bugbyte.spacehaven.world.Ship;
-import fi.bugbyte.gen.compiled.*;
-import fi.bugbyte.framework.screen.StageButton;
 
 @Aspect
 public class ReachedEdenPopupAspect {
@@ -38,31 +35,47 @@ public class ReachedEdenPopupAspect {
 	public void addRefuggesButton(ReachedEdenPopup popup) throws Throwable {
 		Field field = popup.getClass().getDeclaredField("sm");
 		field.setAccessible(true);
-		StarMapScreen sm = (StarMapScreen) field.get(popup);
+		World world = ((StarMapScreen) field.get(popup)).getWorld();
 
-		Array<Character> refugees = RefugeeUtils.getAllHeldRefugges(sm.getWorld());
-		System.out.println("Number of refugees: " + refugees.size);
-		if (refugees.isEmpty()) {
+		if (RefugeeUtils.getAllHeldRefugges(world).isEmpty()) {
 			return;
 		}
-		refugees.sort((final Character c1, final Character c2) -> {
-			int cmp = c1.getOrginalSide().compareTo(c2.getOrginalSide());
-			if (cmp != 0) {
-				return cmp;
-			}
-			return c1.getFullName().compareTo(c2.getFullName());
-		});
 
 		TextIconButton1 button = TextButtons2.getBase();
 		button.setText("Drop off refugges");
+		CharacterSelectPopup.OnClose cb = (boolean confirmed, Array<Character> selected) -> {
+			if (!confirmed || selected.isEmpty()) {
+				return;
+			}
+			int reward = 0;
+			for (Character c : selected) {
+				reward += dropOffCharacter(c);
+			}
+			world.getPlayerBank().addCredits(reward);
+			GameLog.addLog(
+					"Refugee drop-off award: " + String.valueOf(reward) + " "
+							+ Game.library.getTextById("1564").getText(),
+					GameLog.LogType.Good, null);
+
+			if (RefugeeUtils.getAllHeldRefugges(world).isEmpty()) {
+				popup.getButtonManager().removeButton(button);
+			}
+		};
 		button.setClickHandler(() -> {
-			final CharacterSelectPopup p = new CharacterSelectPopup("Select refugees to drop off", refugees,
-					(Array<Character> selected) -> {
-						refugeeSelected(selected);
-					});
+			// A bit akward to recollect this array every time,
+			// but it is easiest way to guarantee consistency for repetitive action.
+			Array<Character> refugees = RefugeeUtils.getAllHeldRefugges(world);
+			refugees.sort((final Character c1, final Character c2) -> {
+				int cmp = c1.getOrginalSide().compareTo(c2.getOrginalSide());
+				if (cmp != 0) {
+					return cmp;
+				}
+				return c1.getFullName().compareTo(c2.getFullName());
+			});
+			final CharacterSelectPopup p = new CharacterSelectPopup("Select refugees to drop off", refugees, cb, null);
 			popup.openCustomPopup("", 0, p);
 		});
-		// layout managment does not exist, yet I want shortcut to calculate position,
+		// Layout managment does not exist, yet I want shortcut to calculate position,
 		// let it just be between two original buttons
 		final Array<StageButton> originalButtons = popup.getButtonManager().getButtons();
 		float x = 0, y = 0;
@@ -81,8 +94,26 @@ public class ReachedEdenPopupAspect {
 		popup.getButtonManager().addButton(button);
 	}
 
-	public boolean refugeeSelected(Array<Character> refugees) {
-		System.out.println("Number of selected refugees: " + refugees.size);
-		return false;
+	// removes character and return amount of reward credits
+	static int dropOffCharacter(Character c) {
+		int mood = c.getMoodProp().getLongTerm();
+		int totalSkill = 0;
+		for (final AbsWorkPersonality.Skill s : c.getPersonality().getSkills()) {
+			totalSkill += s.getLevel();
+		}
+		// (100 + longterm mood) scalead with sum of all skill levels
+		int reward = 100 + mood;
+		reward = (int) ((float) reward * (1 + (float) totalSkill / 40));
+		System.out.printf("%s: mood: %d, totalSkill: %d, reward: %d\n", c.getFullName(), mood, totalSkill, reward);
+
+		Entity.EntityWorldElement wa = c.getWa();
+		Ship ship = wa.getShip();
+		if (ship != null) {
+
+			c.dropAllCarryItems(ship, true);
+			ship.entityLeftShip(c, wa.getGridX(), wa.getGridY());
+		}
+		c.dispose();
+		return reward;
 	}
 }
