@@ -10,7 +10,7 @@
     <properties>
         <!-- author and description will be copied to generated info.xml (see below) -->
         <author>betrok</author>
-        <description><![CDATA[This mod adds addition refugee-related interactions.]]></description>
+        <description><![CDATA[This mod adds additional refugee-related interactions.]]></description>
         <!-- default version, pass -Drevison=<version> to mvn to overwrite -->
         <revision>git</revision>
         
@@ -44,6 +44,7 @@
 
     <build>
         <sourceDirectory>src</sourceDirectory>
+        <finalName>${project.artifactId}</finalName>
         
         <resources>
             <resource>
@@ -72,6 +73,8 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <complianceLevel>1.8</complianceLevel>
+                    <!-- move builddef.lst out of classes directory to exclude it from jar -->
+                    <argumentFileName>../builddef.lst</argumentFileName>
                 </configuration>
                 <executions>
                     <execution>
