@@ -1,6 +1,7 @@
 package spacehavenbmods.MoreRefugeeActions;
 
 import com.badlogic.gdx.utils.Array;
+
 import fi.bugbyte.spacehaven.stuff.Character;
 import fi.bugbyte.spacehaven.stuff.Entity;
 import fi.bugbyte.spacehaven.stuff.FactionUtils;

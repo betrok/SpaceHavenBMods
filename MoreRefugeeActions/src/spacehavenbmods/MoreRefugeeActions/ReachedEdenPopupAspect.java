@@ -20,6 +20,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 
+// Adds option to drop off refugges to popup which is triggered by reaching Eden system after end of Exodus mission
 @Aspect
 public class ReachedEdenPopupAspect {
 	@Pointcut("execution(void fi.bugbyte.spacehaven.gui.popups.ReachedEdenPopup.open(..))")
