@@ -5,11 +5,13 @@ import fi.bugbyte.spacehaven.SpaceHaven;
 import fi.bugbyte.spacehaven.GameTimeLineStats;
 import fi.bugbyte.spacehaven.gui.GUI;
 import fi.bugbyte.spacehaven.gui.GameLog;
+import fi.bugbyte.spacehaven.gui.popups.DialogBoxScreen;
 import fi.bugbyte.spacehaven.stuff.Character;
 import fi.bugbyte.spacehaven.stuff.Entity;
 import fi.bugbyte.spacehaven.stuff.FactionUtils;
 import fi.bugbyte.spacehaven.world.ShipHelper;
 
+import com.badlogic.gdx.utils.IntSet;
 import java.util.Arrays;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -66,6 +68,20 @@ public class RecruitRefugeeAspect {
 		if (!RefugeeUtils.isHeldRefugee(c)) {
 			return;
 		}
+
+		IntSet crewIds = RefugeeUtils.collectCrewIds(c.getWorld());
+		int crewMood = RefugeeUtils.averageCrewMood(c.getWorld());
+
+		if (!RefugeeUtils.acceptsHire(c, crewMood, crewIds)) {
+			String text = c.getFullName() + " does not want to join your crew";
+			GameLog.addLog(text, GameLog.LogType.Normal, c);
+			DialogBoxScreen p = new DialogBoxScreen(text);
+			p.setAddNoButton(false);
+			text += ".\nRecruit acceptance depends on refugee relationships with existing crew and mood of both refugee and crew.";
+			GUI.instance.openCustomPopup(text, 0, p);
+			return;
+		}
+
 		ai.setBeingConverted(false);
 		c.setSide(FactionUtils.FactionSide.Player,
 				SpaceHaven.library.getFactionById(playerFactionID));
@@ -73,6 +89,5 @@ public class RecruitRefugeeAspect {
 		c.getWorld().getTimelineStats().increment(GameTimeLineStats.StatType.NewCrewMember,
 				c.getFullName());
 		GameLog.addLog(c.getFullName() + " recruited", GameLog.LogType.Good, c);
-
 	}
 }
