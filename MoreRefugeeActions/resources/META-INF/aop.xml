@@ -1,6 +1,6 @@
 <aspectj>
     <aspects>
-        <aspect name="spacehavenbmods.MoreRefugeeActions.CommPopupAspect" />
+        <aspect name="spacehavenbmods.MoreRefugeeActions.CallPlayerAspect" />
         <aspect name="spacehavenbmods.MoreRefugeeActions.ReachedEdenPopupAspect" />
         <aspect name="spacehavenbmods.MoreRefugeeActions.RecruitRefugeeAspect" />
     </aspects>

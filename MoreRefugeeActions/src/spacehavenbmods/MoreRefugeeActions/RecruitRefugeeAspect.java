@@ -3,8 +3,6 @@ package spacehavenbmods.MoreRefugeeActions;
 import fi.bugbyte.framework.screen.StageButton;
 import fi.bugbyte.spacehaven.SpaceHaven;
 import fi.bugbyte.spacehaven.GameTimeLineStats;
-import fi.bugbyte.spacehaven.ai.CharacterAI;
-import fi.bugbyte.spacehaven.ai.RefugeeAI;
 import fi.bugbyte.spacehaven.gui.GUI;
 import fi.bugbyte.spacehaven.gui.GameLog;
 import fi.bugbyte.spacehaven.stuff.Character;
@@ -18,11 +16,11 @@ import java.lang.reflect.Method;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 
-//Adds ability to reflect refugee to crew
+//Adds ability to recruit refugee to crew
 @Aspect
 public class RecruitRefugeeAspect {
 	// love me some magic numbers
-	static int playerFactionID = 461;
+	static final int playerFactionID = 461;
 
 	// add convert button when refugee is selected
 	@After("execution(private void fi.bugbyte.spacehaven.gui.GUI.SelectedElements.finishSelection()) && this(selected)")
@@ -45,6 +43,8 @@ public class RecruitRefugeeAspect {
 				Field buttonField = selected.getClass().getDeclaredField("convertButton");
 				buttonField.setAccessible(true);
 				final StageButton button = (StageButton) buttonField.get(selected);
+				// default text says "prisoner"
+				button.setToolTip("Try to recruit this character");
 
 				Method addButtonMethod = selected.getClass()
 						.getDeclaredMethod("addSelectionButton", StageButton.class);
