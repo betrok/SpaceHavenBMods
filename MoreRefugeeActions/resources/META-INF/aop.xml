@@ -3,6 +3,7 @@
         <aspect name="spacehavenbmods.MoreRefugeeActions.CallPlayerAspect" />
         <aspect name="spacehavenbmods.MoreRefugeeActions.ReachedEdenPopupAspect" />
         <aspect name="spacehavenbmods.MoreRefugeeActions.RecruitRefugeeAspect" />
+        <aspect name="spacehavenbmods.MoreRefugeeActions.ScheduleAspect" />
     </aspects>
 
     <weaver options="-verbose -showWeaveInfo">

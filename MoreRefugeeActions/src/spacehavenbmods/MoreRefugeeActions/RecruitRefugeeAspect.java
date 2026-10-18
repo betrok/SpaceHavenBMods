@@ -32,29 +32,30 @@ public class RecruitRefugeeAspect {
 				continue;
 			}
 			Character c = (Character) e;
-			if (RefugeeUtils.isHeldRefugee(c) && c.getAi().getBelongsToMissionId() == 0) {
-				// convert button click handler interacts with enslave button, so we need to make
-				// sure both exist, even if only one is shown
-				for (String name : Arrays.asList("createEnslaveButton", "createConvertButton")) {
-					Method createButtonMethod = selected.getClass()
-							.getDeclaredMethod(name);
-					createButtonMethod.setAccessible(true);
-					createButtonMethod.invoke(selected);
-				}
-
-				Field buttonField = selected.getClass().getDeclaredField("convertButton");
-				buttonField.setAccessible(true);
-				final StageButton button = (StageButton) buttonField.get(selected);
-				// default text says "prisoner"
-				button.setToolTip("Try to recruit this character");
-
-				Method addButtonMethod = selected.getClass()
-						.getDeclaredMethod("addSelectionButton", StageButton.class);
-				addButtonMethod.setAccessible(true);
-				addButtonMethod.invoke(selected, button);
-
-				return;
+			if (!RefugeeUtils.isHeldRefugee(c) || c.getAi().getBelongsToMissionId() != 0) {
+				continue;
 			}
+			// convert button click handler interacts with enslave button, so we need to make
+			// sure both exist, even if only one is shown
+			for (String name : Arrays.asList("createEnslaveButton", "createConvertButton")) {
+				Method createButtonMethod = selected.getClass()
+						.getDeclaredMethod(name);
+				createButtonMethod.setAccessible(true);
+				createButtonMethod.invoke(selected);
+			}
+
+			Field buttonField = selected.getClass().getDeclaredField("convertButton");
+			buttonField.setAccessible(true);
+			final StageButton button = (StageButton) buttonField.get(selected);
+			// default text says "prisoner"
+			button.setToolTip("Try to recruit this character");
+
+			Method addButtonMethod = selected.getClass()
+					.getDeclaredMethod("addSelectionButton", StageButton.class);
+			addButtonMethod.setAccessible(true);
+			addButtonMethod.invoke(selected, button);
+
+			return;
 		}
 	}
 
