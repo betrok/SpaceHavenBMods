@@ -91,6 +91,14 @@ public class RefugeeUtils {
 		return (c.getAi().getPermissionFlags() & ShipHelper.AreaPermission.Refugee.bitTest) > 0;
 	}
 
+	// returns true if character is players prisoner
+	static boolean isHeldPrisoner(final Character c) {
+		if (c.isPlayerChar() || c.getOwnerSide() != FactionUtils.FactionSide.Player) {
+			return false;
+		}
+		return (c.getAi().getPermissionFlags() & ShipHelper.AreaPermission.Prisoner.bitTest) > 0;
+	}
+
 	// average longterm mood of player crew
 	static int averageCrewMood(final World world) {
 		int total = 0;

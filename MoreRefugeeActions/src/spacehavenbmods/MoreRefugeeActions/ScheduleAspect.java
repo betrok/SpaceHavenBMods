@@ -28,6 +28,12 @@ public class ScheduleAspect {
 		nextShift = (nextShift + 1) % 3;
 	}
 
+	@After("execution(void fi.bugbyte.spacehaven.stuff.personality.Personality.setPrisonerSchedule()) && this(personality)")
+	public void setPrisonerSchedule(Personality personality) throws Throwable {
+		offsetShedule(personality, 8 * nextShift);
+		nextShift = (nextShift + 1) % 3;
+	}
+
 	// add shedule shift switch button when refugee is selected
 	@After("execution(private void fi.bugbyte.spacehaven.gui.GUI.SelectedElements.finishSelection()) && this(selected)")
 	public void addRecruitButton(GUI.SelectedElements selected) throws Throwable {
@@ -36,7 +42,7 @@ public class ScheduleAspect {
 				continue;
 			}
 			Character c = (Character) e;
-			if (!RefugeeUtils.isHeldRefugee(c)) {
+			if (!RefugeeUtils.isHeldRefugee(c) && !RefugeeUtils.isHeldPrisoner(c)) {
 				continue;
 			}
 
@@ -56,7 +62,7 @@ public class ScheduleAspect {
 						continue;
 					}
 					Character ch = (Character) s;
-					if (!RefugeeUtils.isHeldRefugee(ch)) {
+					if (!RefugeeUtils.isHeldRefugee(ch) && !RefugeeUtils.isHeldPrisoner(c)) {
 						continue;
 					}
 					try {
