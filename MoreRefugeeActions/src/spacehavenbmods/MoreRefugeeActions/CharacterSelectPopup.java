@@ -20,7 +20,8 @@ import fi.bugbyte.spacehaven.gui.popups.DialogBoxScreen;
 import fi.bugbyte.spacehaven.stuff.Character;
 import fi.bugbyte.spacehaven.stuff.Entity;
 
-public class CharacterSelectPopup extends DialogBoxScreen implements EntityAndCraftInfo.CrewSelectCallback {
+public class CharacterSelectPopup extends DialogBoxScreen
+		implements EntityAndCraftInfo.CrewSelectCallback {
 	static final float popupHeight = 400;
 	static final float popupWidht = 500;
 	final Array<Character> characters;
@@ -39,8 +40,8 @@ public class CharacterSelectPopup extends DialogBoxScreen implements EntityAndCr
 	}
 
 	// customizeCard can be null
-	public CharacterSelectPopup(final String title, final Array<Character> characters, OnClose onClose,
-			CustomizeCard customizeCard) {
+	public CharacterSelectPopup(final String title, final Array<Character> characters,
+			OnClose onClose, CustomizeCard customizeCard) {
 		super(title);
 		this.characters = characters;
 		this.onClose = onClose;
@@ -55,12 +56,14 @@ public class CharacterSelectPopup extends DialogBoxScreen implements EntityAndCr
 		sizeW = (int) (popupWidht * Settings.uiScale);
 		super.open(text, id);
 
-		// scroll builder stiff is mostly copypasted from game code,
+		// scroll builder stuff is mostly copypasted from game code,
 		// little-to-no-idea what specific values do
 		GuiSkin scrollBox = GuiSkins3.getGeneralTextBox1();
-		scrollBox.setSize((popupWidht - 10) * Settings.uiScale, (popupHeight - 150) * Settings.uiScale);
-		scrollBox.setPos(this.skin.getPosX() + this.skin.getWidth() / 2.0f - scrollBox.getWidth() / 2.0f
-				- 10.0f * Settings.uiScale, this.skin.getPosY() + 10.0f * Settings.uiScale);
+		scrollBox.setSize((popupWidht - 10) * Settings.uiScale,
+				(popupHeight - 100) * Settings.uiScale);
+		scrollBox.setPos(this.skin.getPosX() + this.skin.getWidth() / 2.0f
+				- scrollBox.getWidth() / 2.0f - 10.0f * Settings.uiScale,
+				this.skin.getPosY() + 20.0f * Settings.uiScale);
 		GuiSkin.ListBuilder builder = scrollBox.getListBuilder(false);
 		builder.setEmptySizeOnEnds(0.0f);
 		builder.setListHOffset(6.0f * Settings.uiScale);
@@ -210,8 +213,8 @@ public class CharacterSelectPopup extends DialogBoxScreen implements EntityAndCr
 	}
 
 	@Override
-	public void selectedCheckbox(final EntityAndCraftInfo.CrewSelectItem item, final Entity selected,
-			final boolean value) {
+	public void selectedCheckbox(final EntityAndCraftInfo.CrewSelectItem item,
+			final Entity selected, final boolean value) {
 	}
 
 }

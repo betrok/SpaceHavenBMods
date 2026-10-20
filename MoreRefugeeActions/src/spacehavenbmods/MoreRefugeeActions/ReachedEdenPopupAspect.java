@@ -1,18 +1,22 @@
 package spacehavenbmods.MoreRefugeeActions;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntSet;
 import fi.bugbyte.framework.Game;
-import fi.bugbyte.framework.screen.StageButton;
+import fi.bugbyte.framework.screen.GuiSkin;
 import fi.bugbyte.gen.compiled.TextIconButton1;
 import fi.bugbyte.gen.compiled.TextButtons2;
+import fi.bugbyte.spacehaven.gui.EntityAndCraftInfo;
 import fi.bugbyte.spacehaven.gui.GameLog;
 import fi.bugbyte.spacehaven.gui.StarMapScreen;
+import fi.bugbyte.spacehaven.gui.popups.DialogBoxScreen;
 import fi.bugbyte.spacehaven.gui.popups.ReachedEdenPopup;
 import fi.bugbyte.spacehaven.stuff.Character;
 import fi.bugbyte.spacehaven.stuff.Entity;
 import fi.bugbyte.spacehaven.stuff.personality.AbsWorkPersonality;
 import fi.bugbyte.spacehaven.world.Ship;
 import fi.bugbyte.spacehaven.world.World;
+
 import java.lang.System;
 import java.lang.reflect.Field;
 import org.aspectj.lang.annotation.After;
@@ -44,7 +48,7 @@ public class ReachedEdenPopupAspect {
 
 		TextIconButton1 button = TextButtons2.getBase();
 		button.setText("Drop off refugges");
-		CharacterSelectPopup.OnClose cb = (boolean confirmed, Array<Character> selected) -> {
+		CharacterSelectPopup.OnClose onClose = (boolean confirmed, Array<Character> selected) -> {
 			if (!confirmed || selected.isEmpty()) {
 				return;
 			}
@@ -73,23 +77,22 @@ public class ReachedEdenPopupAspect {
 				}
 				return c1.getFullName().compareTo(c2.getFullName());
 			});
-			final CharacterSelectPopup p = new CharacterSelectPopup("Select refugees to drop off", refugees, cb, null);
+			IntSet crewIds = RefugeeUtils.collectCrewIds(world);
+			int crewMood = RefugeeUtils.averageCrewMood(world);
+			final CharacterSelectPopup p = new CharacterSelectPopup("Select refugees to drop off",
+					refugees, onClose, (EntityAndCraftInfo.CrewSelectItem card) -> {
+						Character c = card.getCharacter();
+						if (RefugeeUtils.fineWithStaying(c, crewMood, crewIds)) {
+							card.setExtraIcon(Game.library.getAnimation("goodRestTopicIcon"));
+						}
+					});
 			popup.openCustomPopup("", 0, p);
 		});
-		// Layout managment does not exist, yet I want shortcut to calculate position,
-		// let it just be between two original buttons
-		final Array<StageButton> originalButtons = popup.getButtonManager().getButtons();
-		float x = 0, y = 0;
-		for (final StageButton b : originalButtons) {
-			y = b.getY();
-			x += b.getX();
-		}
-		if (originalButtons.size != 2) {
-			GameLog.addLog("Unexpected buttons number in ReachedEdenPopup", GameLog.LogType.Error, null);
-			x = 0;
-		} else {
-			x /= originalButtons.size;
-		}
+		// middle of popup, same level as other buttons
+		Field skinField = DialogBoxScreen.class.getDeclaredField("skin");
+		skinField.setAccessible(true);
+		float x = ((GuiSkin) skinField.get(popup)).getPosX();
+		float y = popup.getButtonManager().getButtons().first().getY();
 		button.moveTo(x, y);
 
 		popup.getButtonManager().addButton(button);
@@ -105,7 +108,8 @@ public class ReachedEdenPopupAspect {
 		// (100 + longterm mood) scalead with sum of all skill levels
 		int reward = 100 + mood;
 		reward = (int) ((float) reward * (1 + (float) totalSkill / 40));
-		System.out.printf("%s: mood: %d, totalSkill: %d, reward: %d\n", c.getFullName(), mood, totalSkill, reward);
+		System.out.printf("%s: mood: %d, totalSkill: %d, reward: %d\n", c.getFullName(), mood,
+				totalSkill, reward);
 
 		Entity.EntityWorldElement wa = c.getWa();
 		Ship ship = wa.getShip();
