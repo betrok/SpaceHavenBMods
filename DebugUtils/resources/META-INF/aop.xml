@@ -1,0 +1,9 @@
+<aspectj>
+    <aspects>
+        <aspect name="spacehavenbmods.DebugUtils.OmniScan" />
+    </aspects>
+
+    <weaver options="-verbose -showWeaveInfo">
+        <include within="fi.bugbyte..*" />
+    </weaver>
+</aspectj>
