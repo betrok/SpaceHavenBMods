@@ -12,7 +12,7 @@
         <author>betrok</author>
         <description><![CDATA[This mod adds additional refugee-related interactions.]]></description>
         <!-- default version, pass -Drevison=<version> to mvn to overwrite -->
-        <revision>git</revision>
+        <revision>0.1-git</revision>
         
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>

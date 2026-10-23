@@ -17,7 +17,6 @@ import fi.bugbyte.spacehaven.stuff.personality.AbsWorkPersonality;
 import fi.bugbyte.spacehaven.world.Ship;
 import fi.bugbyte.spacehaven.world.World;
 
-import java.lang.System;
 import java.lang.reflect.Field;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
@@ -108,9 +107,6 @@ public class ReachedEdenPopupAspect {
 		// (100 + longterm mood) scalead with sum of all skill levels
 		int reward = 100 + mood;
 		reward = (int) ((float) reward * (1 + (float) totalSkill / 40));
-		System.out.printf("%s: mood: %d, totalSkill: %d, reward: %d\n", c.getFullName(), mood,
-				totalSkill, reward);
-
 		Entity.EntityWorldElement wa = c.getWa();
 		Ship ship = wa.getShip();
 		if (ship != null) {

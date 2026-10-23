@@ -9,12 +9,10 @@ import fi.bugbyte.spacehaven.world.ShipHelper;
 import fi.bugbyte.spacehaven.world.World;
 
 import com.badlogic.gdx.utils.IntSet;
-import java.lang.System;
 import java.lang.reflect.Field;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 
 // Disables communication call from AI about refugees if all of them are fine with staying on player fleet.
 // Handles suspicious too.
@@ -25,8 +23,6 @@ public class CallPlayerAspect {
 	@Around("execution(public boolean fi.bugbyte.spacehaven.ai.EncounterAI.playerHasMyRefugees(..)) && this(ai) && args(checkCall)")
 	public boolean playerHasMyRefugees(ProceedingJoinPoint jp, EncounterAI ai,
 			final boolean checkCall) throws Throwable {
-
-		System.out.printf("playerHasMyRefugees: checkCall: %b\n", checkCall);
 		if (!checkCall) {
 			return (boolean) jp.proceed();
 		}
@@ -43,10 +39,6 @@ public class CallPlayerAspect {
 
 		IntSet crewIds = RefugeeUtils.collectCrewIds(world);
 		int crewMood = RefugeeUtils.averageCrewMood(world);
-
-		System.out.printf("playerHasMyRefugees: side %s, crew mood: %d, crew ids: %s (%d)\n",
-				side.toString(), crewMood, crewIds.toString(), crewIds.size);
-
 		for (final Character c : RefugeeUtils.getAllHeldRefugges(world)) {
 			if (c.getOrginalSide() != side) {
 				continue;
@@ -82,9 +74,6 @@ public class CallPlayerAspect {
 			}
 			if (entity.getOwnerSide() == FactionUtils.FactionSide.Player
 					&& entity instanceof Character) {
-				System.out.printf("factionReactsNegatively (%s, _, %s, %s, %s)\n",
-						entity.toString(), targetSide.toString(), reactorSide.toString(),
-						type.toString());
 				Character c = (Character) entity;
 				// Somewhat inconvonient to recollect crew ids and mood
 				// for each refugee and for each faction in sector.
@@ -99,10 +88,5 @@ public class CallPlayerAspect {
 			return true;
 		}
 		return false;
-	}
-
-	@Before("execution(public void fi.bugbyte.spacehaven.stuff.FactionUtils.StancePair.setUnderInspection(..))")
-	public void traceInspection() {
-		(new Throwable()).printStackTrace();
 	}
 }
