@@ -40,3 +40,11 @@ Stance depends on combination of relationships with player crew, personal longte
 | Lovers        | 30       | 0         | 30       | 30        |
 
 Current stance is indicated with icon in character selection card.
+
+# Instaltion
+
+Follow [instrutions](https://steamcommunity.com/games/979110/announcements/detail/687504475423769187) to enable mod support in steam version. For non-steam version install [mod loader](https://github.com/Spacehaven-modding-tools/spacehaven-modloader/releases) manually.
+
+Download MoreRefugeeActions.zip from [releases](https://github.com/betrok/SpaceHavenBMods/releases) and unpack it into `mods` subdirectory in Space Heaven instalation directory.
+
+This mod does not modify save in any way and should be safe to add/remove to existing playthrough.
