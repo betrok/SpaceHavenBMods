@@ -15,13 +15,13 @@ import java.lang.reflect.Method;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 
-// Splits refugee shedules into 3 shifts offset by 8 hours
+// Splits refugee schedules into 3 shifts offset by 8 hours
 @Aspect
 public class ScheduleAspect {
 	// surely there will be no issues with global counter...
 	static private int nextShift = 0;
 
-	// Select one of 3 shedule offsets
+	// Select one of 3 schedule offsets
 	@After("execution(void fi.bugbyte.spacehaven.stuff.personality.Personality.setRefugeeSchedule()) && this(personality)")
 	public void setRefugeeSchedule(Personality personality) throws Throwable {
 		offsetShedule(personality, 8 * nextShift);
@@ -34,9 +34,9 @@ public class ScheduleAspect {
 		nextShift = (nextShift + 1) % 3;
 	}
 
-	// add shedule shift switch button when refugee is selected
+	// add schedule shift switch button when refugee is selected
 	@After("execution(private void fi.bugbyte.spacehaven.gui.GUI.SelectedElements.finishSelection()) && this(selected)")
-	public void addRecruitButton(GUI.SelectedElements selected) throws Throwable {
+	public void addButton(GUI.SelectedElements selected) throws Throwable {
 		for (Entity e : selected.getSelectedEntities()) {
 			if (!(e instanceof Character)) {
 				continue;
@@ -48,9 +48,9 @@ public class ScheduleAspect {
 
 			TextIconButton1 button = TextButtons2.getIconBase2();
 			button.text = "OFFSET SCHEDULE";
-			button.toolTipText = "Offset character shedule by 8 hours";
+			button.toolTipText = "Offset character schedule by 8 hours";
 			button.icon = Game.library.getAnimation("smallScheduleIcon1");
-			// I naively thoguht that this class will calculate button width based on content.
+			// I naively thought that this class will calculate button width based on content.
 			// Silly me, values for valilla buttons seems to be generated externally and hardcoded
 			// regardless of locale.
 			button.width = 67;
@@ -81,7 +81,7 @@ public class ScheduleAspect {
 		}
 	}
 
-	// Rotates shedule by requested hours
+	// Rotates schedule by requested hours
 	static void offsetShedule(Personality personality, int hours) throws Throwable {
 		hours %= 24;
 		if (hours == 0) {

@@ -51,7 +51,7 @@ public class CallPlayerAspect {
 		return false;
 	}
 
-	// Nothing to be suspicious about if everyone if happy
+	// Nothing to be suspicious about if everyone is happy
 	@Around("execution(public static boolean fi.bugbyte.spacehaven.world.ShipHelper.factionReactsNegatively(..)) && args(entity, permission, targetSide, reactorSide, type)")
 	public boolean factionReactsNegatively(ProceedingJoinPoint jp, Entity entity,
 			final ShipHelper.AreaPermission permission, final FactionUtils.FactionSide targetSide,
