@@ -24,13 +24,13 @@ public class ScheduleAspect {
 	// Select one of 3 schedule offsets
 	@After("execution(void fi.bugbyte.spacehaven.stuff.personality.Personality.setRefugeeSchedule()) && this(personality)")
 	public void setRefugeeSchedule(Personality personality) throws Throwable {
-		offsetShedule(personality, 8 * nextShift);
+		offsetSchedule(personality, 8 * nextShift);
 		nextShift = (nextShift + 1) % 3;
 	}
 
 	@After("execution(void fi.bugbyte.spacehaven.stuff.personality.Personality.setPrisonerSchedule()) && this(personality)")
 	public void setPrisonerSchedule(Personality personality) throws Throwable {
-		offsetShedule(personality, 8 * nextShift);
+		offsetSchedule(personality, 8 * nextShift);
 		nextShift = (nextShift + 1) % 3;
 	}
 
@@ -66,7 +66,7 @@ public class ScheduleAspect {
 						continue;
 					}
 					try {
-						offsetShedule(ch.getPersonality(), 8);
+						offsetSchedule(ch.getPersonality(), 8);
 					} catch (final Throwable t) {
 					}
 				}
@@ -82,7 +82,7 @@ public class ScheduleAspect {
 	}
 
 	// Rotates schedule by requested hours
-	static void offsetShedule(Personality personality, int hours) throws Throwable {
+	static void offsetSchedule(Personality personality, int hours) throws Throwable {
 		hours %= 24;
 		if (hours == 0) {
 			return;

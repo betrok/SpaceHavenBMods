@@ -2,6 +2,7 @@ package spacehavenbmods.MoreRefugeeActions;
 
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import java.lang.Class;
 import java.lang.reflect.Field;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
@@ -24,14 +25,18 @@ public class EntityCardAspect {
 	static Field timerField;
 	static Field skinField;
 	static Field iconXField;
+	static Field drawScheduleField;
 	static {
 		try {
-			timerField = MenuSystemItems.SingleEntitySelected.class.getDeclaredField("timer");
-			timerField.setAccessible(true);
 			skinField = MenuSystemItems.AbstractSelectedBoxItem.class.getDeclaredField("skin");
 			skinField.setAccessible(true);
-			iconXField = MenuSystemItems.SingleEntitySelected.class.getDeclaredField("iconX");
+			Class<?> cl = MenuSystemItems.SingleEntitySelected.class;
+			timerField = cl.getDeclaredField("timer");
+			timerField.setAccessible(true);
+			iconXField = cl.getDeclaredField("iconX");
 			iconXField.setAccessible(true);
+			drawScheduleField = cl.getDeclaredField("drawSchedule");
+			drawScheduleField.setAccessible(true);
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
@@ -50,6 +55,12 @@ public class EntityCardAspect {
 			return;
 		}
 		Character c = (Character) e;
+		// draw schedule for prisnoners
+		if (RefugeeUtils.isHeldPrisoner(c)) {
+			drawScheduleField.set(selected, c.getPersonality());
+			statusIcon = null;
+			return;
+		}
 		if (!RefugeeUtils.isHeldRefugee(c)) {
 			statusIcon = null;
 			return;
